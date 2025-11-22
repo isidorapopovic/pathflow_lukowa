@@ -1,0 +1,27 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36414.22
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{54A90642-561A-4BB1-A94E-469ADEE60C69}") = "pathflow_site", "pathflow_site.esproj", "{21287A31-1D14-772E-9ED6-1F22C026DC38}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{21287A31-1D14-772E-9ED6-1F22C026DC38}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{21287A31-1D14-772E-9ED6-1F22C026DC38}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{21287A31-1D14-772E-9ED6-1F22C026DC38}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{21287A31-1D14-772E-9ED6-1F22C026DC38}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{21287A31-1D14-772E-9ED6-1F22C026DC38}.Release|Any CPU.Build.0 = Release|Any CPU
+		{21287A31-1D14-772E-9ED6-1F22C026DC38}.Release|Any CPU.Deploy.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {05AAC22A-02BC-4C1A-9405-051056DF6E03}
+	EndGlobalSection
+EndGlobal

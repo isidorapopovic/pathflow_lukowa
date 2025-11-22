@@ -1,0 +1,24 @@
+<%- include('partials/header', { title: 'Job details' }) %>
+<div class="container">
+  <div class="mb-3 d-flex justify-content-between align-items-center">
+    <h1 class="h4 mb-0">Job #<%= job.id %> – <%= job.position_name %></h1>
+    <a href="/hr/jobs" class="btn btn-link">Back to list</a>
+  </div>
+  <div class="card shadow-sm">
+    <div class="card-body">
+      <ul class="list-unstyled mb-0">
+        <li><strong>Company:</strong> <%= job.company %></li>
+        <li><strong>Description:</strong> <%= job.position_description %></li>
+        <li><strong>Expected years experience:</strong> <%= job.expected_years_exp %></li>
+        <li><strong>Expected salary:</strong> <%= job.expected_salary !== null ? job.expected_salary : '' %></li>
+        <li><strong>Recruiter:</strong> <%= job.recruiter_name %></li>
+        <li><strong>Created at:</strong> <%= job.created_at %></li>
+      </ul>
+      <hr />
+      <a href="/hr/applications?job=<%= job.id %>" class="btn btn-outline-secondary btn-sm">
+        View applications for this job
+      </a>
+    </div>
+  </div>
+</div>
+<%- include('partials/footer') %>

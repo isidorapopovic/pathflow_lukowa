@@ -1,0 +1,29 @@
+<%- include('partials/header', { title: 'Open positions' }) %>
+<div class="container">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h3 mb-0">Open Positions</h1>
+    <a href="/hr/login" class="btn btn-sm btn-outline-secondary">Recruiter login</a>
+  </div>
+  <div class="row">
+    <% if (rows.length === 0) { %>
+      <p class="text-muted">No open positions right now.</p>
+    <% } else { %>
+      <% rows.forEach(j => { %>
+        <div class="col-md-6">
+          <div class="card shadow-sm mb-3 h-100">
+            <div class="card-body d-flex flex-column">
+              <h5 class="card-title"><%= j.position_name %></h5>
+              <h6 class="card-subtitle mb-2 text-muted"><%= j.company %></h6>
+              <p class="card-text mb-1"><strong>Experience:</strong> <%= j.expected_years_exp %> years</p>
+              <p class="card-text text-muted">
+                <strong>Salary:</strong> <%= j.expected_salary !== null ? j.expected_salary : 'N/A' %>
+              </p>
+              <a href="/apply/<%= j.id %>" class="btn btn-primary mt-auto">Apply</a>
+            </div>
+          </div>
+        </div>
+      <% }) %>
+    <% } %>
+  </div>
+</div>
+<%- include('partials/footer') %>

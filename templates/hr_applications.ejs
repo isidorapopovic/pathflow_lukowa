@@ -1,0 +1,54 @@
+<%- include('partials/header', { title: 'All applications' }) %>
+<div class="container">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h3 mb-0">All Applications</h1>
+    <div>
+      <a href="/hr/jobs" class="btn btn-outline-secondary btn-sm me-2">Job postings</a>
+      <a href="/hr/applicants" class="btn btn-outline-secondary btn-sm">All applicants</a>
+    </div>
+  </div>
+
+  <div class="card shadow-sm">
+    <div class="card-header d-flex justify-content-between align-items-center">
+      <span>Submissions</span>
+      <span class="badge bg-secondary"><%= rows.length %> total</span>
+    </div>
+    <div class="card-body p-0">
+      <table class="table mb-0 table-striped">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Applicant</th>
+            <th>Email</th>
+            <th>Previous job</th>
+            <th>Years</th>
+            <th>Expected salary</th>
+            <th>Applied for</th>
+            <th>Note</th>
+            <th>Submitted</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% if (rows.length === 0) { %>
+            <tr><td colspan="9" class="text-muted text-center">No submissions yet.</td></tr>
+          <% } else { %>
+            <% rows.forEach(r => { %>
+              <tr>
+                <td><%= r.id %></td>
+                <td><%= r.full_name %></td>
+                <td><%= r.email %></td>
+                <td><%= r.previous_job %></td>
+                <td><%= r.years %></td>
+                <td><%= r.salary %></td>
+                <td><%= r.position_name %> @ <%= r.company %></td>
+                <td><%= r.note || '' %></td>
+                <td><%= r.created_at %></td>
+              </tr>
+            <% }) %>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+<%- include('partials/footer') %>

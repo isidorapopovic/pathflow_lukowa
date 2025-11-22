@@ -1,0 +1,62 @@
+<%- include('partials/header', { title: 'HR – Job Postings' }) %>
+<div class="container">
+
+  <!-- Top toolbar -->
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h3 mb-0">Job Postings</h1>
+    <div>
+      <a href="/hr/applicants" class="btn btn-outline-secondary btn-sm me-2">All applicants</a>
+      <a href="/hr/applications" class="btn btn-outline-secondary btn-sm me-2">Job applications</a>
+      <a href="/hr/logout" class="btn btn-link btn-sm">Logout</a>
+    </div>
+  </div>
+
+  <!-- Jobs table -->
+  <div class="card shadow-sm">
+    <div class="card-header d-flex justify-content-between align-items-center">
+      <span>All jobs</span>
+      <a href="/hr/jobs/new" class="btn btn-sm btn-primary">+ New job</a>
+    </div>
+    <div class="card-body p-0">
+      <table class="table table-striped mb-0">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Position</th>
+            <th>Company</th>
+            <th>Years exp</th>
+            <th>Salary</th>
+            <th>Recruiter</th>
+            <th>Created</th>
+            <th>Applications</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% if (rows.length === 0) { %>
+            <tr>
+              <td colspan="8" class="text-muted text-center">No jobs yet.</td>
+            </tr>
+          <% } else { %>
+            <% rows.forEach(j => { %>
+              <tr>
+                <td><%= j.id %></td>
+                <td><a href="/hr/jobs/<%= j.id %>"><%= j.position_name %></a></td>
+                <td><%= j.company %></td>
+                <td><%= j.expected_years_exp %></td>
+                <td><%= j.expected_salary !== null ? j.expected_salary : '' %></td>
+                <td><%= j.recruiter_name %></td>
+                <td><%= j.created_at %></td>
+                <td>
+                  <a href="/hr/applications?job=<%= j.id %>" class="btn btn-sm btn-outline-primary">
+                    View applications
+                  </a>
+                </td>
+              </tr>
+            <% }) %>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+<%- include('partials/footer') %>

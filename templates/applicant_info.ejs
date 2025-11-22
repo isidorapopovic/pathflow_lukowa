@@ -1,0 +1,97 @@
+<%- include('partials/header', { title: 'Job Application – Your information' }) %>
+<div class="container">
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+      <h1 class="h4 mb-2">Job Application Form</h1>
+      <p class="text-muted mb-4">Please fill out your details below:</p>
+
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <% if (error) { %>
+            <div class="alert alert-danger"><%= error %></div>
+          <% } %>
+
+          <form method="POST" action="/applicant/info" id="appForm" novalidate>
+            <div class="mb-3">
+              <label class="form-label">Full Name</label>
+              <input
+                type="text"
+                class="form-control"
+                name="full_name"
+                value="<%= (info && info.full_name) ? info.full_name : '' %>"
+                required
+                minlength="2"
+              />
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Email</label>
+              <input
+                type="email"
+                class="form-control"
+                name="email"
+                value="<%= (info && info.email) ? info.email : '' %>"
+                required
+              />
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Previous Job</label>
+              <input
+                type="text"
+                class="form-control"
+                name="previous_job"
+                value="<%= (info && info.previous_job) ? info.previous_job : '' %>"
+                required
+                minlength="2"
+              />
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Years on that Job</label>
+              <input
+                type="number"
+                class="form-control"
+                name="years"
+                value="<%= (info && info.years) ? info.years : '' %>"
+                required
+                min="0"
+              />
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Expected Salary ($)</label>
+              <input
+                type="number"
+                class="form-control"
+                name="salary"
+                value="<%= (info && info.salary) ? info.salary : '' %>"
+                required
+                min="0"
+              />
+            </div>
+
+            <p id="err" class="text-danger fw-bold" style="display:none;"></p>
+
+            <button type="submit" class="btn btn-primary">Continue to jobs</button>
+            <a href="/" class="btn btn-link">Back</a>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const form = document.getElementById('appForm');
+  const err = document.getElementById('err');
+  form.addEventListener('submit', (e) => {
+    if (!form.checkValidity()) {
+      e.preventDefault();
+      err.textContent = 'Please fill all fields correctly.';
+      err.style.display = 'block';
+    }
+  });
+</script>
+
+<%- include('partials/footer') %>

@@ -1,0 +1,64 @@
+<%- include('partials/header', { title: 'Apply' }) %>
+<div class="container">
+  <div class="row justify-content-center">
+    <div class="col-md-7">
+      <h1 class="h3 mb-3">Apply for <%= job.position_name %></h1>
+      <p class="text-muted mb-4"><%= job.company %></p>
+
+      <!-- Applicant details -->
+      <div class="card shadow-sm mb-3">
+        <div class="card-body">
+          <h5 class="card-title">Your details</h5>
+          <p class="mb-1"><strong>Name:</strong> <%= applicant.full_name %></p>
+          <p class="mb-1"><strong>Email:</strong> <%= applicant.email %></p>
+          <p class="mb-1"><strong>Previous job:</strong> <%= applicant.previous_job %></p>
+          <p class="mb-1"><strong>Years on that job:</strong> <%= applicant.years %></p>
+          <p class="mb-0"><strong>Expected salary ($):</strong> <%= applicant.salary %></p>
+        </div>
+      </div>
+
+      <!-- Application note -->
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <h5 class="card-title">Application</h5>
+
+          <% if (error) { %>
+            <div class="alert alert-danger"><%= error %></div>
+          <% } %>
+
+          <form method="POST" action="/apply/<%= job.id %>" id="appForm" novalidate>
+            <div class="mb-3">
+              <label class="form-label">Why are you a good fit for this role?</label>
+              <textarea
+                class="form-control"
+                name="note"
+                rows="4"
+                required
+                minlength="3"
+              ></textarea>
+            </div>
+
+            <p id="formError" class="text-danger fw-bold" style="display:none;"></p>
+
+            <button type="submit" class="btn btn-primary">Submit application</button>
+            <a href="/jobs" class="btn btn-link">Back to jobs</a>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const form = document.getElementById('appForm');
+  const formError = document.getElementById('formError');
+  form.addEventListener('submit', (e) => {
+    if (!form.checkValidity()) {
+      e.preventDefault();
+      formError.textContent = 'Please write a short message.';
+      formError.style.display = 'block';
+    }
+  });
+</script>
+
+<%- include('partials/footer') %>
