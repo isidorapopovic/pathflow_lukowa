@@ -11,7 +11,9 @@ const mysql = require('mysql2/promise');
 const path = require('path');
 
 const app = express();
-const PORT = 4000; // we know 4000 works for you
+const PORT = process.env.PORT || 4000;
+app.listen(PORT, () => console.log(`Server on ${PORT}`));
+
 
 // ---------- 1. MySQL connection (EDIT THIS) ----------
 const pool = mysql.createPool({
@@ -328,10 +330,11 @@ app.get('/hr/applications', requireHR, async (req, res) => {
 
 // ---------- 12. Fallback 404 ----------
 app.use((req, res) => {
-    res.status(404).send('404 – Page not found: ' + req.originalUrl);
+    res.status(404).send('404 Â– Page not found: ' + req.originalUrl);
 });
 
 // ---------- 13. Start server ----------
 app.listen(PORT, () => {
     console.log(`Pathflow recruiting app running at http://localhost:${PORT}`);
 });
+
