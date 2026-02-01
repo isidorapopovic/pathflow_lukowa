@@ -1,13 +1,12 @@
 // app.js
 // -----------------------------------------
 // Pathflow recruiting app (Node + Express + EJS) — PostgreSQL version
-// - Applicants: fill full info once -> view jobs -> apply with note per job
-// - HR: login -> manage jobs -> see applicants & job applications
+// Works with either:
+//   1) DATABASE_URL (preferred on Render), OR
+//   2) PGHOST/PGPORT/PGDATABASE/PGUSER/PGPASSWORD
 //
-// Notes:
-// - HR jobs template is: templates/hr_jobs.ejs  (render as "hr_jobs")
-// - Adds JSON APIs (/api/jobs and /api/hr/jobs) to avoid "Error loading job postings"
-//   if your EJS uses fetch().
+// Templates:
+// - HR jobs page: templates/hr_jobs.ejs  (render as "hr_jobs")
 // -----------------------------------------
 
 const express = require("express");
@@ -16,21 +15,43 @@ const path = require("path");
 const { Pool } = require("pg");
 
 const app = express();
-
-// Render provides PORT; locally fallback to 4000
 const PORT = process.env.PORT || 4000;
 
-// ---------- 1) PostgreSQL connection (Render env var) ----------
-if (!process.env.DATABASE_URL) {
-  console.error("❌ DATABASE_URL is not set. Add it in Render Environment variables.");
+// ---------- 1) Build Postgres connection ----------
+function buildConnectionStringFromParts() {
+  const host = process.env.PGHOST;
+  const port = process.env.PGPORT || "5432";
+  const database = process.env.PGDATABASE;
+  const user = process.env.PGUSER;
+  const password = process.env.PGPASSWORD;
+
+  if (!host || !database || !user || !password) return null;
+
+  // URL-encode user/pass (important if special chars)
+  const u = encodeURIComponent(user);
+  const p = encodeURIComponent(password);
+  return `postgresql://${u}:${p}@${host}:${port}/${database}`;
+}
+
+const connectionString = process.env.DATABASE_URL || buildConnectionStringFromParts();
+
+if (!connectionString) {
+  console.error("❌ Postgres config missing.");
+  console.error("Set DATABASE_URL (recommended) OR set PGHOST, PGPORT, PGDATABASE, PGUSER, PGPASSWORD.");
   process.exit(1);
 }
 
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  // Render Postgres often requires SSL in production
+  connectionString,
   ssl: process.env.NODE_ENV === "production" ? { rejectUnauthorized: false } : false,
 });
+
+// Optional: log which method is used (helps debugging)
+console.log(
+  process.env.DATABASE_URL
+    ? "✅ Using DATABASE_URL for Postgres اتصال"
+    : "✅ Using PG* env vars for Postgres اتصال"
+);
 
 // ---------- 2) Basic Express & EJS setup ----------
 app.use(express.urlencoded({ extended: true }));
@@ -38,9 +59,6 @@ app.use(express.json());
 
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "templates"));
-
-// If you have a /public folder for css/js, uncomment:
-// app.use(express.static(path.join(__dirname, "public")));
 
 // ---------- 3) Sessions ----------
 const HR_PASSWORD = process.env.HR_PASSWORD || "1234";
@@ -53,7 +71,6 @@ app.use(
   })
 );
 
-// --- Auth helpers ---
 function isJsonRequest(req) {
   const accept = req.headers.accept || "";
   return req.originalUrl.startsWith("/api/") || accept.includes("application/json");
@@ -65,7 +82,6 @@ function requireHR(req, res, next) {
   return res.redirect("/hr/login");
 }
 
-// Helper: ensure applicant exists in session
 function requireApplicant(req, res, next) {
   if (!req.session.applicantId || !req.session.applicantInfo) {
     if (isJsonRequest(req)) return res.status(401).json({ error: "Applicant not set" });
@@ -74,9 +90,8 @@ function requireApplicant(req, res, next) {
   next();
 }
 
-// ---------- 4) DB schema init (creates tables if missing) ----------
+// ---------- 4) DB schema init ----------
 async function initDb() {
-  // Applicants master table
   await pool.query(`
     CREATE TABLE IF NOT EXISTS applications (
       id SERIAL PRIMARY KEY,
@@ -89,7 +104,6 @@ async function initDb() {
     );
   `);
 
-  // Job postings
   await pool.query(`
     CREATE TABLE IF NOT EXISTS job_postings (
       id SERIAL PRIMARY KEY,
@@ -103,7 +117,6 @@ async function initDb() {
     );
   `);
 
-  // Job applications (per job, with note)
   await pool.query(`
     CREATE TABLE IF NOT EXISTS job_applications (
       id SERIAL PRIMARY KEY,
@@ -114,10 +127,7 @@ async function initDb() {
     );
   `);
 
-  // Helpful indexes
-  await pool.query(
-    `CREATE INDEX IF NOT EXISTS idx_job_apps_applicant_id ON job_applications(applicant_id);`
-  );
+  await pool.query(`CREATE INDEX IF NOT EXISTS idx_job_apps_applicant_id ON job_applications(applicant_id);`);
   await pool.query(`CREATE INDEX IF NOT EXISTS idx_job_apps_job_id ON job_applications(job_id);`);
 }
 
@@ -133,7 +143,7 @@ app.get("/", (req, res) => {
   res.render("landing", { isHR: !!(req.session && req.session.isHR) });
 });
 
-// ---------- 6) Applicant info (master applicant record) ----------
+// ---------- 6) Applicant info ----------
 app.get("/applicant/info", (req, res) => {
   const info = req.session.applicantInfo || null;
   res.render("applicant_info", { info, error: null });
@@ -185,7 +195,7 @@ app.post("/applicant/info", async (req, res) => {
   }
 });
 
-// ---------- 7) Applicant: jobs (server-rendered) ----------
+// ---------- 7) Applicant: jobs ----------
 app.get("/jobs", requireApplicant, async (req, res) => {
   try {
     const result = await pool.query(
@@ -200,7 +210,7 @@ app.get("/jobs", requireApplicant, async (req, res) => {
   }
 });
 
-// ---------- 7b) Applicant: jobs (JSON API, for fetch()) ----------
+// Optional JSON endpoint if your EJS uses fetch()
 app.get("/api/jobs", requireApplicant, async (req, res) => {
   try {
     const result = await pool.query(
@@ -215,7 +225,7 @@ app.get("/api/jobs", requireApplicant, async (req, res) => {
   }
 });
 
-// ---------- 8) Applicant: apply to a job ----------
+// ---------- 8) Applicant: apply ----------
 app.get("/apply/:jobId", requireApplicant, async (req, res) => {
   const { jobId } = req.params;
 
@@ -255,11 +265,7 @@ app.post("/apply/:jobId", requireApplicant, async (req, res) => {
       if (!job) return res.status(404).send("Job not found.");
 
       const applicant = req.session.applicantInfo;
-      return res.render("apply", {
-        job,
-        applicant,
-        error: "Please add a short message.",
-      });
+      return res.render("apply", { job, applicant, error: "Please add a short message." });
     } catch (err) {
       console.error("Error reloading job for apply:", err);
       return res.status(500).send("Error submitting application.");
@@ -298,7 +304,7 @@ app.get("/hr/logout", (req, res) => {
   req.session.destroy(() => res.redirect("/hr/login"));
 });
 
-// ---------- 10) HR: job postings (server-rendered) ----------
+// ---------- 10) HR: job postings ----------
 app.get("/hr", requireHR, (req, res) => res.redirect("/hr/jobs"));
 
 app.get("/hr/jobs", requireHR, async (req, res) => {
@@ -309,7 +315,6 @@ app.get("/hr/jobs", requireHR, async (req, res) => {
        FROM job_postings
        ORDER BY created_at DESC`
     );
-    // IMPORTANT: template is templates/hr_jobs.ejs
     res.render("hr_jobs", { rows: result.rows });
   } catch (err) {
     console.error("Error loading HR jobs:", err);
@@ -317,7 +322,7 @@ app.get("/hr/jobs", requireHR, async (req, res) => {
   }
 });
 
-// ---------- 10b) HR: job postings (JSON API, for fetch()) ----------
+// Optional JSON endpoint if your hr_jobs.ejs uses fetch()
 app.get("/api/hr/jobs", requireHR, async (req, res) => {
   try {
     const result = await pool.query(
