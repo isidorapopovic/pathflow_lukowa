@@ -51,8 +51,10 @@ function requireHR(req, res, next) {
 
 // ---------- 4. Landing ----------
 app.get('/', (req, res) => {
-    res.render('landing'); // landing.ejs
+  // lets the landing page route recruiters smartly
+  res.render('landing', { isHR: !!(req.session && req.session.isHR) }); // landing.ejs
 });
+
 
 // ---------- 5. Applicant info (master applicant record) ----------
 app.get('/applicant/info', (req, res) => {
@@ -337,4 +339,5 @@ app.use((req, res) => {
 app.listen(PORT, () => {
     console.log(`Pathflow recruiting app running at http://localhost:${PORT}`);
 });
+
 
