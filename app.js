@@ -440,53 +440,6 @@ app.get("/hr/applications", requireHR, async (req, res) => {
     }
 });
 
-// ---------- Legacy Flask compatibility routes ----------
-
-// Old Flask: POST /submit
-app.post("/submit", async (req, res) => {
-    try {
-        const full_name = (req.body.full_name || "").trim();
-        const email = (req.body.email || "").trim();
-        const previous_job = (req.body.previous_job || "").trim();
-        const years = Number(req.body.years || 0);
-        const salary = Number(req.body.salary || 0);
-
-        if (!full_name || !email || !previous_job) {
-            return res.status(400).send("Missing required fields.");
-        }
-
-        if (!Number.isFinite(years) || !Number.isFinite(salary)) {
-            return res.status(400).send("Years and salary must be numeric.");
-        }
-
-        await pool.query(
-            `INSERT INTO applications (full_name, email, previous_job, years, salary)
-       VALUES ($1, $2, $3, $4, $5)`,
-            [full_name, email, previous_job, years, salary]
-        );
-
-        return res.redirect("/records");
-    } catch (err) {
-        console.error("Legacy /submit error:", err);
-        return res.status(500).send(`Error: ${err.message}`);
-    }
-});
-
-// Old Flask: GET /records
-app.get("/records", async (req, res) => {
-    try {
-        const result = await pool.query(
-            `SELECT id, full_name, email, previous_job, years, salary
-       FROM applications
-       ORDER BY id DESC`
-        );
-
-        return res.render("records", { rows: result.rows });
-    } catch (err) {
-        console.error("Legacy /records error:", err);
-        return res.status(500).send(`Error: ${err.message}`);
-    }
-});
 
 // ---------- 13) Fallback 404 ----------
 app.use((req, res) => {
