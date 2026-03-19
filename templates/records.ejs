@@ -1,0 +1,39 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Records</title>
+</head>
+<body>
+  <h1>Application Records</h1>
+
+  <% if (!rows || rows.length === 0) { %>
+    <p>No records found.</p>
+  <% } else { %>
+    <table border="1" cellpadding="8">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Full name</th>
+          <th>Email</th>
+          <th>Previous job</th>
+          <th>Years</th>
+          <th>Salary</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% rows.forEach((row) => { %>
+          <tr>
+            <td><%= row.id %></td>
+            <td><%= row.full_name %></td>
+            <td><%= row.email %></td>
+            <td><%= row.previous_job %></td>
+            <td><%= row.years %></td>
+            <td><%= row.salary %></td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  <% } %>
+</body>
+</html>
